@@ -1,38 +1,16 @@
-# Ransack
-
-### Maintainer Wanted
-
-A note from [Sean](https://github.com/seanfcarroll).
-Ransack is a fantastic gem, and a key part of many Rails projects. It is also a core component of [ActiveAdmin](https://github.com/activeadmin/activeadmin) and generally a great way to add fairly complex search and filtering without having to resort to external services, such as Elasticsearch.
-
-In my humble opinion, Ransack can be much more, if it does a bit less. What I mean is that the API vector of Ransack is quite large, and really has been issue-driven. There are complications with Polymorphic relations, complex joins and MongoDB. It's not clear sometimes if there is a bug or not.
-
-I was hoping to lead Ransack to version 2.0, and in my opinion this would have included:
-
-- Absorbing Polyamorous
-- Splitting MongoDB support into a seperate gem
-- Dropping support for older Rails versions; strictly follow the [Rails support policy](http://guides.rubyonrails.org/maintenance_policy.html). This is important as the codebase is littered with code for de-supported Rails versions
-- Add a generator to build in Ransack with a scaffold
-- Generate tests for Ransack-enabled applications
-- Update the Wiki / docs with lots of examples of 'how-to', questions are the majority of issues on Ransack
-- Increase supported translations
-
-Unfortunately I am quite occupied at present with several projects, including [crowdAI](https://github.com/crowdAI/crowdai), and I will need to step down as a maintainer. I have also posted it [here](https://github.com/pickhardt/maintainers-wanted).
-
-If you want to step up, please contact me on gmail as **sfcarroll**
-
-
+# ![Ransack](./logo/ransack-h.png "Ransack")
 
 [![Build Status](https://travis-ci.org/activerecord-hackery/ransack.svg)](https://travis-ci.org/activerecord-hackery/ransack)
 [![Gem Version](https://badge.fury.io/rb/ransack.svg)](http://badge.fury.io/rb/ransack)
 [![Code Climate](https://codeclimate.com/github/activerecord-hackery/ransack/badges/gpa.svg)](https://codeclimate.com/github/activerecord-hackery/ransack)
+[![Backers on Open Collective](https://opencollective.com/ransack/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/ransack/sponsors/badge.svg)](#sponsors) 
 
 Ransack is a rewrite of [MetaSearch](https://github.com/activerecord-hackery/meta_search)
 created by [Ernie Miller](http://twitter.com/erniemiller)
 and developed/maintained for years by
 [Jon Atack](http://twitter.com/jonatack) and
 [Ryan Bigg](http://twitter.com/ryanbigg) with the help of a great group of
-[contributors](https://github.com/activerecord-hackery/ransack/graphs/contributors).
+[contributors](https://github.com/activerecord-hackery/ransack/graphs/contributors). Ransack's logo is designed by [Anıl Kılıç](https://github.com/anilkilic).
 While it supports many of the same features as MetaSearch, its underlying
 implementation differs greatly from MetaSearch,
 and backwards compatibility is not a design goal.
@@ -50,11 +28,12 @@ instead.
 If you're viewing this at
 [github.com/activerecord-hackery/ransack](https://github.com/activerecord-hackery/ransack),
 you're reading the documentation for the master branch with the latest features.
-[View documentation for the last release (1.8.8).](https://github.com/activerecord-hackery/ransack/tree/v1.8.8)
+[View documentation for the last release (2.0.0).](https://github.com/activerecord-hackery/ransack/tree/v2.0.0)
 
 ## Getting started
 
-Ransack is compatible with Rails 4.2 and 5.0, 5.1 and 5.2 on Ruby 2.2 and later.
+Ransack is compatible with Rails 5.0, 5.1 and 5.2 on Ruby 2.2 and later.
+If you are using Rails <5.0 use the 1.8 line of Ransack.
 If you are using Ruby 1.8 or an earlier JRuby and run into compatibility
 issues, you can use an earlier version of Ransack, say, up to 1.3.0.
 
@@ -154,6 +133,11 @@ which are defined in
 <% end %>
 ```
 
+The argument of `f.search_field` has to be in this form:
+ `attribute_name[_or_attribute_name]..._predicate`
+
+where `[_or_another_attribute_name]...` means any repetition of `_or_` plus the name of the attribute.
+
 `cont` (contains) and `start` (starts with) are just two of the available
 search predicates. See
 [Constants](https://github.com/activerecord-hackery/ransack/blob/master/lib/ransack/constants.rb)
@@ -218,6 +202,23 @@ This example toggles the sort directions of both fields, by default
 initially sorting the `last_name` field by ascending order, and the
 `first_name` field by descending order.
 
+In the case that you wish to sort by some complex value, such as the result
+of a SQL function, you may do so using scopes. In your model, define scopes
+whose names line up with the name of the virtual field you wish to sort by,
+as so:
+
+```ruby
+class Person < ActiveRecord::Base
+  scope :sort_by_reverse_name_asc, lambda { order("REVERSE(name) ASC") }
+  scope :sort_by_reverse_name_desc, lambda { order("REVERSE(name) DESC") }
+...
+```
+
+and you can then sort by this virtual field:
+
+```erb
+<%= sort_link(@q, :reverse_name) %>
+```
 
 The sort link order indicator arrows may be globally customized by setting a
 `custom_arrows` option in an initializer file like
@@ -448,7 +449,7 @@ List of all possible predicates
 | `*_lteq` | less than or equal | |
 | `*_gt` | greater than | |
 | `*_gteq` | greater than or equal | |
-| `*_present` | not null and not empty | e.g. `q[name_present]=1` (SQL: `col is not null AND col != ''`) |
+| `*_present` | not null and not empty | Only compatible with string columns. Example: `q[name_present]=1` (SQL: `col is not null AND col != ''`) |
 | `*_blank` | is null or empty. | (SQL: `col is null OR col = ''`) |
 | `*_null` | is null | |
 | `*_not_null` | is not null | |
@@ -505,7 +506,7 @@ avoid returning duplicate rows, even if conditions on a join would otherwise
 result in some. It generates the same SQL as calling `uniq` on the relation.
 
 Please note that for many databases, a sort on an associated table's columns
-may result in invalid SQL with `distinct: true` -- in those cases, you will
+may result in invalid SQL with `distinct: true` -- in those cases, you
 will need to modify the result as needed to allow these queries to work.
 
 For example, you could call joins and includes on the result which has the
@@ -734,13 +735,26 @@ boolean. This is currently resolved in Rails 5 :smiley:
 However, perhaps you have `user_id: [1]` and you do not want Ransack to convert
 1 into a boolean. (Values sanitized to booleans can be found in the
 [constants.rb](https://github.com/activerecord-hackery/ransack/blob/master/lib/ransack/constants.rb#L28)).
-To turn this off, and handle type conversions yourself, set
+To turn this off globally, and handle type conversions yourself, set
 `sanitize_custom_scope_booleans` to false in an initializer file like
 config/initializers/ransack.rb:
 
 ```ruby
 Ransack.configure do |c|
   c.sanitize_custom_scope_booleans = false
+end
+```
+
+To turn this off on a per-scope basis Ransack adds the following method to
+`ActiveRecord::Base` that you can redefine to selectively override sanitization:
+
+`ransackable_scopes_skip_sanitize_args`
+
+Add the scope you wish to bypass this behavior to ransackable_scopes_skip_sanitize_args:
+
+```ruby
+def ransackable_scopes_skip_sanitize_args
+  [:scope_to_skip_sanitize_args]
 end
 ```
 
@@ -875,7 +889,7 @@ en:
 
 ## Mongoid
 
-Mongoid support has been moved to its own gem at [ransack-mongoid](github.com/activerecord-hackery/ransack-mongoid).
+Mongoid support has been moved to its own gem at [ransack-mongoid](https://github.com/activerecord-hackery/ransack-mongoid).
 Ransack works with Mongoid in the same way as Active Record, except that with
 Mongoid, associations are not currently supported. Demo source code may be found
 [here](https://github.com/Zhomart/ransack-mongodb-demo). A `result` method
@@ -920,3 +934,32 @@ directly related to bug reports, pull requests, or documentation improvements.
 * Spread the word on Twitter, Facebook, and elsewhere if Ransack's been useful
 to you. The more people who are using the project, the quicker we can find and
 fix bugs!
+
+## Contributors
+
+This project exists thanks to all the people who contribute. <img src="https://opencollective.com/ransack/contributors.svg?width=890&button=false" />
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/ransack#backer)]
+
+<a href="https://opencollective.com/ransack#backers" target="_blank"><img src="https://opencollective.com/ransack/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/ransack#sponsor)]
+
+<a href="https://opencollective.com/ransack/sponsor/0/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/1/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/2/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/3/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/4/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/5/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/6/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/7/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/8/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/ransack/sponsor/9/website" target="_blank"><img src="https://opencollective.com/ransack/sponsor/9/avatar.svg"></a>
+
+

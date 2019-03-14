@@ -1,5 +1,91 @@
 # Change Log
 
+## Unreleased
+
+## Version 2.1.1 - 2018-12-05
+
+* Add `arabic` translation
+  https://github.com/activerecord-hackery/ransack/pull/979
+
+* Deprecate #search
+  PR [975](https://github.com/activerecord-hackery/ransack/pull/975)
+
+## Version 2.1.0 - 2018-10-26
+
+* Add support for sorting by scopes
+  PR [973](https://github.com/activerecord-hackery/ransack/pull/973)
+
+  *Diego Borges*
+
+* Added a new logo for Ransack
+  PR [972](https://github.com/activerecord-hackery/ransack/pull/972)
+
+  *Anıl Kılıç*, *Greg Molnar*
+
+* Greek translations
+  PR [971](https://github.com/activerecord-hackery/ransack/pull/971)
+  PR [960](https://github.com/activerecord-hackery/ransack/pull/960)
+
+  *Sean Carroll*, *Greg Molnar*
+
+* README improvements
+  PR [963](https://github.com/activerecord-hackery/ransack/pull/963)
+
+  *tommaso1*
+
+* Bulgarian translations
+  PR [961](https://github.com/activerecord-hackery/ransack/pull/961)
+
+  *Sean Carroll*
+
+* README improvements
+  PR [956](https://github.com/activerecord-hackery/ransack/pull/956)
+
+  *Alex Konoval*
+
+* Remove lib/ransack/adapters/active_record/compat.rb
+  PR [954](https://github.com/activerecord-hackery/ransack/pull/954)
+
+  *Ryuta Kamizono*
+
+* Remove unused aliases
+  PR [953](https://github.com/activerecord-hackery/ransack/pull/953)
+
+  *Ryuta Kamizono*
+
+## Version 2.0.1 - 2018-08-18
+
+* Don't return association if table is nil
+  PR [952](https://github.com/activerecord-hackery/ransack/pull/952)
+
+  *Christian Gregg*
+
+## Version 2.0.0 - 2018-08-09
+
+* Add support for Active Record 5.2.1
+  PR [#938](https://github.com/activerecord-hackery/ransack/pull/938)
+
+* Fix sort with joins on existing association
+  PR [#937](https://github.com/activerecord-hackery/ransack/pull/937)
+
+* Add the ability to skip arg sanitization on a per scope basis. Using
+  `ransackable_scopes_skip_sanitize_args`, users can define a list of
+  scopes which will bypass parameter sanitization. This allows passing 0,
+  1, t, f, etc. to a scope as an actual parameter.
+  PR [#933](https://github.com/activerecord-hackery/ransack/pull/933)
+
+* Drop support for Active Record < 5.0.
+  PR [#929](https://github.com/activerecord-hackery/ransack/pull/929)
+
+* Extract mongoid support to a separate gem.
+  PR [#928](https://github.com/activerecord-hackery/ransack/pull/928)
+
+* Absorb polyamorous
+  PR [#927](https://github.com/activerecord-hackery/ransack/pull/927)
+
+* Fix broken monkey patch of #form_with
+  PR [#922](https://github.com/activerecord-hackery/ransack/pull/922)
+
 ## Version 1.8.8 - 2018-03-16
 * Fix multiple database support
   PR [#893](https://github.com/activerecord-hackery/ransack/pull/893)
@@ -15,14 +101,14 @@
 
 * Rails 5.2 support
   PR [#868](https://github.com/activerecord-hackery/ransack/pull/868)
- 
+
 * Lock pg gem to 0.21 to support older releases
 
 * Warnings cleanup
   PR [#867](https://github.com/activerecord-hackery/ransack/pull/867)
 
 * Wildcard escaping
-  PR [#866] 
+  PR [#866]
 
 ## Version 1.8.6 - 2018-01-23
 
@@ -36,7 +122,7 @@
 
 ## Version 1.8.5
 
-### Added  
+### Added
 
 * Added Turkish Translations
   PR [#835](https://github.com/activerecord-hackery/ransack/issues/835).

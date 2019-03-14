@@ -14,6 +14,7 @@ module Ransack
         end
 
         def ransack(params = {}, options = {})
+          ActiveSupport::Deprecation.warn("#search is deprecated and will be removed in 2.3, please use #ransack instead") if __callee__ == :search
           Search.new(self, params, options)
         end
 
@@ -61,6 +62,14 @@ module Ransack
         # For overriding with a whitelist array of *symbols*.
         #
         def ransackable_scopes(auth_object = nil)
+          []
+        end
+
+        # ransack_scope_skip_sanitize_args, by default, returns an empty array.
+        # i.e. use the sanitize_scope_args setting to determin if args should be converted.
+        # For overriding with a list of scopes which should be passed the args as-is.
+        #
+        def ransackable_scopes_skip_sanitize_args
           []
         end
 
