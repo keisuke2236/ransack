@@ -9,7 +9,7 @@ module Polyamorous
         if name.is_a? Join
           reflection = find_reflection base_klass, name.name
           reflection.check_validity!
-          reflection.check_eager_loadable! if ActiveRecord::VERSION::MAJOR >= 5
+          reflection.check_eager_loadable!
 
           klass = if reflection.polymorphic?
             name.klass || base_klass
@@ -20,31 +20,13 @@ module Polyamorous
         else
           reflection = find_reflection base_klass, name
           reflection.check_validity!
-          reflection.check_eager_loadable! if ActiveRecord::VERSION::MAJOR >= 5
+          reflection.check_eager_loadable!
 
           if reflection.polymorphic?
             raise ActiveRecord::EagerLoadPolymorphicError.new(reflection)
           end
           JoinAssociation.new(reflection, build(right, reflection.klass), alias_tracker)
         end
-      end
-    end
-
-    def find_join_association_respecting_polymorphism(reflection, parent, klass)
-      if association = parent.children.find { |j| j.reflection == reflection }
-        unless reflection.polymorphic?
-          association
-        else
-          association if association.base_klass == klass
-        end
-      end
-    end
-
-    def build_join_association_respecting_polymorphism(reflection, parent, klass)
-      if reflection.polymorphic? && klass
-        JoinAssociation.new(reflection, self, alias_tracker, klass)
-      else
-        JoinAssociation.new(reflection, self, alias_tracker)
       end
     end
 
